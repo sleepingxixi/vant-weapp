@@ -1,7 +1,7 @@
 import { VantComponent } from '../common/component';
 import { button } from '../mixins/button';
 import { openType } from '../mixins/open-type';
-import { GRAY, BLUE } from '../common/color';
+import { GRAY, RED } from '../common/color';
 
 type Action = 'confirm' | 'cancel' | 'overlay';
 
@@ -9,9 +9,18 @@ VantComponent({
   mixins: [button, openType],
 
   props: {
-    show: Boolean,
+    show: {
+      type: Boolean,
+      observer(show: boolean) {
+        !show && this.stopLoading();
+      }
+    },
     title: String,
     message: String,
+    theme: {
+      type: String,
+      value: 'default'
+    },
     useSlot: Boolean,
     className: String,
     customStyle: String,
@@ -37,7 +46,7 @@ VantComponent({
     },
     confirmButtonColor: {
       type: String,
-      value: BLUE
+      value: RED
     },
     cancelButtonColor: {
       type: String,
@@ -61,12 +70,6 @@ VantComponent({
     loading: {
       confirm: false,
       cancel: false
-    }
-  },
-
-  watch: {
-    show(show: boolean) {
-      !show && this.stopLoading();
     }
   },
 
@@ -117,7 +120,9 @@ VantComponent({
       // 把 dialog 实例传递出去，可以通过 stopLoading() 在外部关闭按钮的 loading
       this.$emit(action, { dialog: this });
 
-      const callback = this.data[action === 'confirm' ? 'onConfirm' : 'onCancel'];
+      const callback = this.data[
+        action === 'confirm' ? 'onConfirm' : 'onCancel'
+      ];
       if (callback) {
         callback(this);
       }
